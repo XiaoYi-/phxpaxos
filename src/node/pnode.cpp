@@ -245,7 +245,7 @@ int PNode :: Init(const Options & oOptions, NetWork *& poNetWork)
     //step3 build masterlist
     for (int iGroupIdx = 0; iGroupIdx < oOptions.iGroupCount; iGroupIdx++)
     {
-        MasterMgr * poMaster = new MasterMgr(this, iGroupIdx, poLogStorage);
+        MasterMgr * poMaster = new MasterMgr(this, iGroupIdx, poLogStorage); //每个node创建了一个master进程。
         assert(poMaster != nullptr);
         m_vecMasterList.push_back(poMaster);
 
@@ -477,7 +477,7 @@ int PNode :: ProposalMembership(
 
     return smret;
 }
-
+//向group中添加node
 int PNode :: AddMember(const int iGroupIdx, const NodeInfo & oNode)
 {
     if (!CheckGroupID(iGroupIdx))

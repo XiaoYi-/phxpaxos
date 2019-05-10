@@ -382,7 +382,7 @@ bool Instance :: ReceiveMsgHeaderCheck(const Header & oHeader, const nodeid_t iF
 
     return true;
 }
-
+//instance接收外部消息。
 void Instance :: OnReceive(const std::string & sBuffer)
 {
     BP->GetInstanceBP()->OnReceive();
@@ -403,7 +403,7 @@ void Instance :: OnReceive(const std::string & sBuffer)
     }
 
     int iCmd = oHeader.cmdid();
-
+    //paxos算法相关的消息
     if (iCmd == MsgCmd_PaxosMsg)
     {
         if (m_oCheckpointMgr.InAskforcheckpointMode())
@@ -425,8 +425,8 @@ void Instance :: OnReceive(const std::string & sBuffer)
         {
             return;
         }
-        
-        OnReceivePaxosMsg(oPaxosMsg);
+        //处理paxos算法消息
+        OnReceivePaxosMsg(oPaxosMsg); 
     }
     else if (iCmd == MsgCmd_CheckpointMsg)
     {
@@ -471,7 +471,7 @@ void Instance :: OnReceiveCheckpointMsg(const CheckpointMsg & oCheckpointMsg)
         m_oLearner.OnSendCheckpointAck(oCheckpointMsg);
     }
 }
-
+//根据消息的类型分发给不同的角色处理，比如如果是提议的消息则交给acceptot处理，如果是同步的消息交给leaner处理。leaner调状态机的excuse函数改变状态机状态。
 int Instance :: OnReceivePaxosMsg(const PaxosMsg & oPaxosMsg, const bool bIsRetry)
 {
     BP->GetInstanceBP()->OnReceivePaxosMsg();
@@ -651,7 +651,7 @@ int Instance :: ReceiveMsgForAcceptor(const PaxosMsg & oPaxosMsg, const bool bIs
 
     return 0;
 }
-
+//处理Leaner消息类型，改变本地状态机的状态等。
 int Instance :: ReceiveMsgForLearner(const PaxosMsg & oPaxosMsg)
 {
     if (oPaxosMsg.msgtype() == MsgType_PaxosLearner_AskforLearn)
@@ -701,7 +701,7 @@ int Instance :: ReceiveMsgForLearner(const PaxosMsg & oPaxosMsg)
             BP->GetInstanceBP()->OnInstanceLearnedIsMyCommit(iUseTimeMs);
             PLGHead("My commit ok, usetime %dms", iUseTimeMs);
         }
-
+        //状态机改变状态函数。 excuse
         if (!SMExecute(m_oLearner.GetInstanceID(), m_oLearner.GetLearnValue(), bIsMyCommit, poSMCtx))
         {
             BP->GetInstanceBP()->OnInstanceLearnedSMExecuteFail();
@@ -735,7 +735,7 @@ int Instance :: ReceiveMsgForLearner(const PaxosMsg & oPaxosMsg)
 
         m_iLastChecksum = m_oLearner.GetNewChecksum();
 
-        NewInstance();
+        NewInstance(); //开启新instance
 
         PLGHead("[Learned] New paxos instance has started, Now.Proposer.InstanceID %lu "
                 "Now.Acceptor.InstanceID %lu Now.Learner.InstanceID %lu",

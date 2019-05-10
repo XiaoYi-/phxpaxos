@@ -64,7 +64,7 @@ int SystemVSM :: Init()
 
     return 0;
 }
-
+//确定一个变量，要把这变量值写到数据库持久化。
 int SystemVSM :: UpdateSystemVariables(const SystemVariables & oVariables)
 {
     WriteOptions oWriteOptions;
@@ -83,7 +83,7 @@ int SystemVSM :: UpdateSystemVariables(const SystemVariables & oVariables)
 
     return 0;
 }
-
+//状态状态转变函数。
 bool SystemVSM :: Execute(const int iGroupIdx, const uint64_t llInstanceID, const std::string & sValue, SMCtx * poSMCtx)
 {
     SystemVariables oVariables;
@@ -99,14 +99,14 @@ bool SystemVSM :: Execute(const int iGroupIdx, const uint64_t llInstanceID, cons
     {
         smret = (int *)poSMCtx->m_pCtx;
     }
-
+    //检查groupID是否对应。
     if (m_oSystemVariables.gid() != 0 && oVariables.gid() != m_oSystemVariables.gid())
     {
         PLG1Err("modify.gid %lu not equal to now.gid %lu", oVariables.gid(), m_oSystemVariables.gid());
         if (smret != nullptr) *smret = Paxos_MembershipOp_GidNotSame;
         return true;
     }
-
+    //版本检查
     if (oVariables.version() != m_oSystemVariables.version())
     {
         PLG1Err("modify.version %lu not equal to now.version %lu", oVariables.version(), m_oSystemVariables.version());

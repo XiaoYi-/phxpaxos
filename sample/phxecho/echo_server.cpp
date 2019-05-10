@@ -83,7 +83,7 @@ int PhxEchoServer :: RunPaxos()
     oSMInfo.iGroupIdx = 0;
     //one paxos group can have multi state machine.
     oSMInfo.vecSMList.push_back(&m_oEchoSM);
-    oOptions.vecGroupSMInfoList.push_back(oSMInfo);
+    oOptions.vecGroupSMInfoList.push_back(oSMInfo); //注意这里设置了自定义的状态机，状态机的excuse函数会在instance->OnReceivePaxosMsg中触发。
 
     //use logger_google to print log
     LogFunc pLogFunc;

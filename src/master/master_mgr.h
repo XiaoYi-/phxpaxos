@@ -69,3 +69,11 @@ private:
 };
     
 }
+
+
+/*
+* 基于整个paxos算法实现的master选举功能。
+* TryBeMaster 尝试成为master
+* void MasterMgr :: SetLeaseTime(const int iLeaseTimeMs) 设置租约时间
+* MasterStateMachine :: IsIMMaster() 判断自己是否是master
+*/

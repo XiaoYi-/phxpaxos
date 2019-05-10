@@ -144,3 +144,8 @@ private:
 };
     
 }
+
+
+/*
+* 一个paxos算法流程，组合有proposer、acceptor、Learner等成员，确定一个值后更新instanceid,清空状态机，然后重新开启下一轮。
+*/

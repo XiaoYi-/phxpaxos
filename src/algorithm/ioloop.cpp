@@ -174,7 +174,7 @@ void IOLoop :: DealWithRetry()
         m_oRetryQueue.pop();
     }
 }
-
+//IO模块读消息
 void IOLoop :: OneLoop(const int iTimeoutMs)
 {
     std::string * psMessage = nullptr;
@@ -194,7 +194,7 @@ void IOLoop :: OneLoop(const int iTimeoutMs)
         if (psMessage != nullptr && psMessage->size() > 0)
         {
             m_iQueueMemSize -= psMessage->size();
-            m_poInstance->OnReceive(*psMessage);
+            m_poInstance->OnReceive(*psMessage); //把消息丢给instance处理，instance根据消息类型分发到不同的对象。比如propose,acceptor等
         }
 
         delete psMessage;

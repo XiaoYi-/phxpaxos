@@ -32,12 +32,12 @@ namespace phxpaxos
 
 class MsgTransport;
 
-class SystemVSM : public InsideSM 
+class SystemVSM : public InsideSM  //系统状态机，属于group的状态机。
 {
 public:
     SystemVSM(
-            const int iGroupIdx, 
-            const nodeid_t iMyNodeID,
+            const int iGroupIdx, //group编号
+            const nodeid_t iMyNodeID, //本机nodeID
             const LogStorage * poLogStorage,
             MembershipChangeCallback pMembershipChangeCallback);
     ~SystemVSM();
@@ -51,7 +51,7 @@ public:
 public:
     const uint64_t GetGid() const;
 
-    void GetMembership(NodeInfoList & vecNodeInfoList, uint64_t & llVersion); 
+    void GetMembership(NodeInfoList & vecNodeInfoList, uint64_t & llVersion); //返回成员列表，node列表
 
     int CreateGid_OPValue(const uint64_t llGid, std::string & sOpValue);
     
@@ -60,13 +60,13 @@ public:
 public:
     //membership
     
-    void AddNodeIDList(const NodeInfoList & vecNodeInfoList);
+    void AddNodeIDList(const NodeInfoList & vecNodeInfoList); //加入节点。
 
     void RefleshNodeID();
 
     const int GetNodeCount() const;
 
-    const int GetMajorityCount() const;
+    const int GetMajorityCount() const; //拿group中超过半数node的数量
 
     const bool IsValidNodeID(const nodeid_t iNodeID);
 

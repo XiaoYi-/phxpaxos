@@ -277,8 +277,8 @@ void Proposer :: AddAcceptTimer(const int iTimeoutMs)
         m_iLastAcceptTimeoutMs = MAX_ACCEPT_TIMEOUTMS;
     }
 }
-
-void Proposer :: Prepare(const bool bNeedNewBallot)
+//起草预案，提交到所有accept角色。
+void Proposer :: Prepare(const bool bNeedNewBallot) 
 {
     PLGHead("START Now.InstanceID %lu MyNodeID %lu State.ProposalID %lu State.ValueLen %zu",
             GetInstanceID(), m_poConfig->GetMyNodeID(), m_oProposerState.GetProposalID(),
@@ -312,7 +312,7 @@ void Proposer :: Prepare(const bool bNeedNewBallot)
 
     BroadcastMessage(oPaxosMsg);
 }
-
+/*accept回复起草预案的答复*/
 void Proposer :: OnPrepareReply(const PaxosMsg & oPaxosMsg)
 {
     PLGHead("START Msg.ProposalID %lu State.ProposalID %lu Msg.from_nodeid %lu RejectByPromiseID %lu",
@@ -337,15 +337,15 @@ void Proposer :: OnPrepareReply(const PaxosMsg & oPaxosMsg)
 
     m_oMsgCounter.AddReceive(oPaxosMsg.nodeid());
 
-    if (oPaxosMsg.rejectbypromiseid() == 0)
+    if (oPaxosMsg.rejectbypromiseid() == 0) //accept
     {
         BallotNumber oBallot(oPaxosMsg.preacceptid(), oPaxosMsg.preacceptnodeid());
         PLGDebug("[Promise] PreAcceptedID %lu PreAcceptedNodeID %lu ValueSize %zu", 
                 oPaxosMsg.preacceptid(), oPaxosMsg.preacceptnodeid(), oPaxosMsg.value().size());
-        m_oMsgCounter.AddPromiseOrAccept(oPaxosMsg.nodeid());
-        m_oProposerState.AddPreAcceptValue(oBallot, oPaxosMsg.value());
+        m_oMsgCounter.AddPromiseOrAccept(oPaxosMsg.nodeid()); //状态机记录预案被接受
+        m_oProposerState.AddPreAcceptValue(oBallot, oPaxosMsg.value()); //记录预案被接受的值
     }
-    else
+    else //reject
     {
         PLGDebug("[Reject] RejectByPromiseID %lu", oPaxosMsg.rejectbypromiseid());
         m_oMsgCounter.AddReject(oPaxosMsg.nodeid());
@@ -353,13 +353,13 @@ void Proposer :: OnPrepareReply(const PaxosMsg & oPaxosMsg)
         m_oProposerState.SetOtherProposalID(oPaxosMsg.rejectbypromiseid());
     }
 
-    if (m_oMsgCounter.IsPassedOnThisRound())
+    if (m_oMsgCounter.IsPassedOnThisRound()) //根据状态机的统计，判断这轮是否通过。
     {
         int iUseTimeMs = m_oTimeStat.Point();
         BP->GetProposerBP()->PreparePass(iUseTimeMs);
         PLGImp("[Pass] start accept, usetime %dms", iUseTimeMs);
         m_bCanSkipPrepare = true;
-        Accept();
+        Accept(); //这轮预案通过了，所以发起预案提交。
     }
     else if (m_oMsgCounter.IsRejectedOnThisRound()
             || m_oMsgCounter.IsAllReceiveOnThisRound())
@@ -381,7 +381,7 @@ void Proposer :: OnExpiredPrepareReply(const PaxosMsg & oPaxosMsg)
         m_oProposerState.SetOtherProposalID(oPaxosMsg.rejectbypromiseid());
     }
 }
-
+//预案通过后发起预案的提交。
 void Proposer :: Accept()
 {
     PLGHead("START ProposalID %lu ValueSize %zu ValueLen %zu", 
@@ -409,7 +409,7 @@ void Proposer :: Accept()
 
     BroadcastMessage(oPaxosMsg, BroadcastMessage_Type_RunSelf_Final);
 }
-
+//accept对提交预案的答复
 void Proposer :: OnAcceptReply(const PaxosMsg & oPaxosMsg)
 {
     PLGHead("START Msg.ProposalID %lu State.ProposalID %lu Msg.from_nodeid %lu RejectByPromiseID %lu",
@@ -432,12 +432,12 @@ void Proposer :: OnAcceptReply(const PaxosMsg & oPaxosMsg)
         return;
     }
 
-    m_oMsgCounter.AddReceive(oPaxosMsg.nodeid());
+    m_oMsgCounter.AddReceive(oPaxosMsg.nodeid()); //状态机统计记录
 
     if (oPaxosMsg.rejectbypromiseid() == 0)
     {
         PLGDebug("[Accept]");
-        m_oMsgCounter.AddPromiseOrAccept(oPaxosMsg.nodeid());
+        m_oMsgCounter.AddPromiseOrAccept(oPaxosMsg.nodeid()); //预案接受数量统计
     }
     else
     {
@@ -449,13 +449,13 @@ void Proposer :: OnAcceptReply(const PaxosMsg & oPaxosMsg)
         m_oProposerState.SetOtherProposalID(oPaxosMsg.rejectbypromiseid());
     }
 
-    if (m_oMsgCounter.IsPassedOnThisRound())
+    if (m_oMsgCounter.IsPassedOnThisRound()) //预案是否通过了。
     {
         int iUseTimeMs = m_oTimeStat.Point();
         BP->GetProposerBP()->AcceptPass(iUseTimeMs);
         PLGImp("[Pass] Start send learn, usetime %dms", iUseTimeMs);
         ExitAccept();
-        m_poLearner->ProposerSendSuccess(GetInstanceID(), m_oProposerState.GetProposalID());
+        m_poLearner->ProposerSendSuccess(GetInstanceID(), m_oProposerState.GetProposalID()); //预案通过后有leader把这个通过的预案广播给其他成员。
     }
     else if (m_oMsgCounter.IsRejectedOnThisRound()
             || m_oMsgCounter.IsAllReceiveOnThisRound())
