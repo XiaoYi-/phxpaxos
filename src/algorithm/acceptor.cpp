@@ -299,7 +299,7 @@ void Acceptor :: OnAccept(const PaxosMsg & oPaxosMsg)
 
     BallotNumber oBallot(oPaxosMsg.proposalid(), oPaxosMsg.nodeid());
 
-    if (oBallot >= m_oAcceptorState.GetPromiseBallot())
+    if (oBallot >= m_oAcceptorState.GetPromiseBallot()) //可能是已经被写过了，但是如果是被写过的那么oPaxosMsg.value()应该也是跟之前一样的。
     {
         PLGDebug("[Promise] State.PromiseID %lu State.PromiseNodeID %lu "
                 "State.PreAcceptedID %lu State.PreAcceptedNodeID %lu",

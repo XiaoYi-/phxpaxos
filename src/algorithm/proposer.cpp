@@ -327,14 +327,14 @@ void Proposer :: OnPrepareReply(const PaxosMsg & oPaxosMsg)
         //PLGErr("Not preparing, skip this msg");
         return;
     }
-
+    /// not for this node skip 
     if (oPaxosMsg.proposalid() != m_oProposerState.GetProposalID())
     {
         BP->GetProposerBP()->OnPrepareReplyNotSameProposalIDMsg();
         //PLGErr("ProposalID not same, skip this msg");
         return;
     }
-
+    ///统计回复节点ID
     m_oMsgCounter.AddReceive(oPaxosMsg.nodeid());
 
     if (oPaxosMsg.rejectbypromiseid() == 0) //accept
@@ -342,8 +342,8 @@ void Proposer :: OnPrepareReply(const PaxosMsg & oPaxosMsg)
         BallotNumber oBallot(oPaxosMsg.preacceptid(), oPaxosMsg.preacceptnodeid());
         PLGDebug("[Promise] PreAcceptedID %lu PreAcceptedNodeID %lu ValueSize %zu", 
                 oPaxosMsg.preacceptid(), oPaxosMsg.preacceptnodeid(), oPaxosMsg.value().size());
-        m_oMsgCounter.AddPromiseOrAccept(oPaxosMsg.nodeid()); //状态机记录预案被接受
-        m_oProposerState.AddPreAcceptValue(oBallot, oPaxosMsg.value()); //记录预案被接受的值
+        m_oMsgCounter.AddPromiseOrAccept(oPaxosMsg.nodeid()); ///状态机记录预案被接受
+        m_oProposerState.AddPreAcceptValue(oBallot, oPaxosMsg.value()); ///记录预案被接受的值
     }
     else //reject
     {

@@ -180,9 +180,9 @@ int PNode :: CheckOptions(const Options & oOptions)
 
 void PNode :: InitStateMachine(const Options & oOptions)
 {
-    for (auto & oGroupSMInfo : oOptions.vecGroupSMInfoList)
+    for (auto & oGroupSMInfo : oOptions.vecGroupSMInfoList) //每个group
     {
-        for (auto & poSM : oGroupSMInfo.vecSMList)
+        for (auto & poSM : oGroupSMInfo.vecSMList) //一个group多个状态机
         {
             AddStateMachine(oGroupSMInfo.iGroupIdx, poSM);
         }

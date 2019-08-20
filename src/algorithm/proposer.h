@@ -142,3 +142,32 @@ public:
 };
     
 }
+
+
+
+/*
+已经accept的提议 {n,v} 
+对所有 k < n {k,v} 
+对所有 p > n {p,v}, 因为p prepare阶段读到已经accept的 value == v , 所有 p > n 的提议 value == v
+
+
+
+ p arg1 = break num 
+ p arg2 = propose num
+
+ a arg1 = break num
+ a arg2 = propose num
+ a arg3 = propose val
+
+case 1:
+ p1(1,n) a1(1,n,v)
+ p1(2,n) a2(2,n,v)
+ p1(3,n) a3(3,n,v)
+ 议案 (n,v)
+
+case 2:
+ p1(1,n) p4(2,m)  a1(1,n,v) a1(2,m,a)
+ p2(1,n) p4(2,m)  a2(1,n,v) a2(2,m,a)
+ p3(1,n) p4(2,m)            a3(2,m,a)
+ 议案 (m,a) 第二轮accept确定
+*/
